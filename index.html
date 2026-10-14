@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DAE 2026 — Meu Guia & Planejador de Grade</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Bebas Neue"', 'sans-serif'],
+          },
+          colors: {
+            dae: {
+              cyan: '#00C7FC',
+              navy: '#091E3A',
+              card: '#0f2747',
+              accent: '#38BDF8',
+              alert: '#F43F5E',
+              warning: '#F59E0B',
+              success: '#10B981',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #091e3a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e3a5f;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00C7FC;
+    }
+
+    .badge-sala-s1 { background-color: #0284c7; color: #fff; }
+    .badge-sala-s2 { background-color: #0d9488; color: #fff; }
+    .badge-sala-s3 { background-color: #7c3aed; color: #fff; }
+    .badge-sala-s4 { background-color: #d97706; color: #fff; }
+    .badge-sala-s5 { background-color: #e11d48; color: #fff; }
+
+    .pulse-conflict {
+      animation: pulse-border 1.8s infinite ease-in-out;
+    }
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.4); }
+      50% { box-shadow: 0 0 0 5px rgba(244, 63, 94, 0.95); }
+    }
+
+    /* Mobile scroll snap for horizontal room swipe */
+    .mobile-rooms-scroll {
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mobile-room-col {
+      scroll-snap-align: start;
+    }
+  </style>
+</head>
+<body class="bg-[#061224] text-slate-100 min-h-screen font-sans antialiased selection:bg-[#00C7FC] selection:text-black pb-28 md:pb-12">
+  <!-- Header & Topbar -->
+  <header class="sticky top-0 z-40 bg-[#091E3A]/95 backdrop-blur-md border-b border-cyan-500/20 shadow-xl">
+    <div class="max-w-[1700px] mx-auto px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <div class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-display text-xl sm:text-2xl tracking-wider text-slate-950 font-bold shadow-md shadow-cyan-500/20 shrink-0">
+          DAE
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-cyan-400">DAE 2026</span>
+            <span class="hidden xs:inline-block px-1.5 py-0.2 rounded text-[9px] sm:text-[10px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800">Florianópolis</span>
+          </div>
+          <h1 class="text-sm sm:text-xl font-black tracking-tight text-white line-clamp-1">
+            Planejador de Grade & Rota
+          </h1>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-1.5 sm:gap-3">
+        <button id="btn-view-mode" onclick="toggleViewMode()" class="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold flex items-center gap-1.5 border border-slate-700 transition-all shadow-sm">
+          <i data-lucide="layout-grid" class="w-4 h-4 text-cyan-400"></i>
+          <span id="txt-view-mode" class="hidden xs:inline">Minha Rota</span>
+          <span id="badge-total-selected" class="px-2 py-0.5 rounded-full text-xs bg-cyan-400 text-slate-950 font-black">0</span>
+        </button>
+
+        <button onclick="openPrintModal()" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm font-medium flex items-center gap-1.5 border border-slate-700 transition-all" title="Imprimir ou Salvar PDF">
+          <i data-lucide="printer" class="w-4 h-4 text-cyan-400"></i>
+          <span class="hidden sm:inline">PDF</span>
+        </button>
+
+        <button onclick="promptResetAll()" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all" title="Limpar seleções">
+          <i data-lucide="rotate-ccw" class="w-4 h-4 text-rose-400"></i>
+          <span class="hidden sm:inline">Resetar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Subnav / Filters & Day Selector -->
+    <div class="border-t border-slate-800 bg-[#07172b]/95 px-3.5 sm:px-6 lg:px-8 py-2">
+      <div class="max-w-[1700px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+        <!-- Day Switcher (Scroll horizontal no celular com toque fácil) -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5" id="day-tabs">
+          <button onclick="switchDay('29')" data-day="29" class="day-tab shrink-0 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span>29 · Qui</span>
+            <span class="text-[10px] opacity-75">(20)</span>
+          </button>
+          <button onclick="switchDay('30')" data-day="30" class="day-tab shrink-0 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span>30 · Sex</span>
+            <span class="text-[10px] opacity-75">(51)</span>
+          </button>
+          <button onclick="switchDay('31')" data-day="31" class="day-tab shrink-0 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span>31 · Sáb</span>
+            <span class="text-[10px] opacity-75">(53)</span>
+          </button>
+        </div>
+
+        <!-- Search Bar and Status -->
+        <div class="flex items-center gap-2 sm:gap-3 flex-1 max-w-xl">
+          <div class="relative w-full">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+            <input type="search" id="search-input" oninput="handleSearch(this.value)" placeholder="Buscar palestra, palestrante, tema..." class="w-full pl-9 pr-4 py-2 sm:py-1.5 rounded-xl bg-slate-900/90 text-xs sm:text-sm text-slate-100 placeholder-slate-400 border border-slate-700 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all">
+          </div>
+          <!-- Conflict Alert Pill -->
+          <div id="conflict-indicator" class="hidden shrink-0 flex items-center gap-1.5 px-2.5 py-2 sm:py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/50 text-rose-300 text-xs font-bold animate-pulse cursor-pointer" onclick="scrollToFirstConflict()">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400"></i>
+            <span id="conflict-count-text">0 conflito(s)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Room Filter Pills (Facilita pular para sala direto no celular) -->
+      <div class="md:hidden flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 no-scrollbar text-[11px]" id="mobile-room-filter-bar">
+        <button onclick="filterMobileRoom('all')" data-m-room="all" class="m-room-btn shrink-0 px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 font-black">Todas Salas</button>
+        <button onclick="filterMobileRoom('s1')" data-m-room="s1" class="m-room-btn shrink-0 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-semibold border border-slate-700">Sala 1: Plenária</button>
+        <button onclick="filterMobileRoom('s2')" data-m-room="s2" class="m-room-btn shrink-0 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-semibold border border-slate-700">Sala 2: Advogados</button>
+        <button onclick="filterMobileRoom('s3')" data-m-room="s3" class="m-room-btn shrink-0 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-semibold border border-slate-700">Sala 3: Servidores</button>
+        <button onclick="filterMobileRoom('s4')" data-m-room="s4" class="m-room-btn shrink-0 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-semibold border border-slate-700">Sala 4: Técnicos</button>
+        <button onclick="filterMobileRoom('s5')" data-m-room="s5" class="m-room-btn shrink-0 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-semibold border border-slate-700">Sala 5: Mentoria</button>
+      </div>
+    </div>
+  </header>
+  <!-- Mobile Interaction Hint & Status Banner -->
+  <div class="max-w-[1700px] mx-auto px-3.5 sm:px-6 lg:px-8 pt-3">
+    <div class="bg-gradient-to-r from-slate-900 via-[#0a2342] to-slate-900 border border-slate-700/60 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-2.5 shadow-lg">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+          <i data-lucide="info" class="w-4 h-4"></i>
+        </div>
+        <div class="text-xs text-slate-300 leading-relaxed">
+          <strong class="text-cyan-300">Como funciona:</strong> Toque no card para <span class="underline decoration-cyan-400">destacar e inspecionar</span>. Clique no botão <span class="inline-flex items-center justify-center w-5 h-5 bg-slate-700 rounded text-cyan-300 font-bold text-xs"><i data-lucide="plus" class="w-3 h-3"></i></span> para adicionar e no <span class="inline-flex items-center justify-center w-5 h-5 bg-emerald-500 text-slate-950 rounded font-bold text-xs"><i data-lucide="check" class="w-3 h-3"></i></span> para desmarcar. Suas escolhas ficam salvas automaticamente!
+        </div>
+      </div>
+
+      <!-- Quick Room Legend (Desktop) -->
+      <div class="hidden lg:flex items-center flex-wrap gap-1.5 text-[10px] font-bold">
+        <span class="px-2 py-0.5 rounded badge-sala-s1">Sala 1: Plenária</span>
+        <span class="px-2 py-0.5 rounded badge-sala-s2">Sala 2: Advogados</span>
+        <span class="px-2 py-0.5 rounded badge-sala-s3">Sala 3: Servidores</span>
+        <span class="px-2 py-0.5 rounded badge-sala-s4">Sala 4: Técnicos</span>
+        <span class="px-2 py-0.5 rounded badge-sala-s5">Sala 5: Mentoria</span>
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-[1700px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+
+    <!-- VIEW 1: Grid Multi-Salas Lado a Lado -->
+    <section id="view-grid" class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-base sm:text-xl font-bold text-white flex items-center gap-2">
+            <span id="grid-day-title">Programação de Quinta-Feira (29)</span>
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-cyan-950 text-cyan-400 border border-cyan-800" id="day-counter-badge">20 eventos</span>
+          </h2>
+          <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Texto integral sem cortes. Role as salas para comparar horários simultâneos.</p>
+        </div>
+      </div>
+
+      <!-- Columns Container (Lado a Lado adaptado para Mobile com scroll ou seleção direta) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 sm:gap-4.5" id="rooms-grid-container">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- VIEW 2: Minha Rota & Conflitos Organizados por Horário -->
+    <section id="view-itinerary" class="hidden space-y-4 sm:space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3 sm:pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] sm:text-xs uppercase tracking-widest font-bold text-cyan-400">Roteiro Personalizado</span>
+            <span class="px-2 py-0.5 rounded-full text-[11px] sm:text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold" id="itinerary-badge-count">0 palestras escolhidas</span>
+          </div>
+          <h2 class="text-lg sm:text-2xl font-black text-white mt-1">Minha Rota de Locomoção no DAE 2026</h2>
+          <p class="text-xs text-slate-400">Palestras selecionadas em ordem cronológica com indicação da sala física para fácil deslocamento.</p>
+        </div>
+
+        <button onclick="toggleViewMode()" class="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all shadow-md shadow-cyan-500/20">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          Voltar para a Grade Completa
+        </button>
+      </div>
+
+      <!-- Conflict Warning Banner -->
+      <div id="itinerary-conflicts-box" class="hidden bg-rose-950/40 border border-rose-500/60 rounded-2xl p-4 text-rose-200 space-y-1.5 shadow-xl">
+        <div class="flex items-center gap-2 font-bold text-rose-400 text-sm sm:text-base">
+          <i data-lucide="alert-triangle" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          <span>Atenção: Choque de Horários Detectado!</span>
+        </div>
+        <p class="text-xs sm:text-sm text-rose-300/90 leading-relaxed">
+          Você selecionou duas ou mais apresentações no mesmo horário em salas diferentes. Use o botão <strong>Remover</strong> na apresentação que não for assistir para otimizar sua rota física.
+        </p>
+      </div>
+
+      <!-- Timeline of Selected Talks -->
+      <div id="itinerary-list-container" class="space-y-4 sm:space-y-6">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Bottom Sticky Navigation (Polegar) -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#091E3A]/95 backdrop-blur-lg border-t border-slate-800 px-3 py-2 flex items-center justify-around shadow-2xl">
+    <button onclick="switchViewTo('grid')" id="m-btn-grid" class="flex flex-col items-center gap-1 text-cyan-400 font-bold text-[10px]">
+      <i data-lucide="grid" class="w-5 h-5"></i>
+      <span>Grade Completa</span>
+    </button>
+    <button onclick="switchViewTo('itinerary')" id="m-btn-itinerary" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] relative">
+      <i data-lucide="map-pin" class="w-5 h-5"></i>
+      <span>Minha Rota</span>
+      <span id="m-badge-count" class="absolute -top-1 right-2 px-1.5 py-0.2 rounded-full text-[9px] bg-cyan-400 text-slate-950 font-black">0</span>
+    </button>
+    <button onclick="openPrintModal()" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px]">
+      <i data-lucide="printer" class="w-5 h-5"></i>
+      <span>Exportar</span>
+    </button>
+    <button onclick="promptResetAll()" class="flex flex-col items-center gap-1 text-rose-400 font-semibold text-[10px]">
+      <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+      <span>Reset</span>
+    </button>
+  </div>
+  <!-- Reset Confirmation Modal -->
+  <div id="modal-reset" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="w-11 h-11 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center">
+        <i data-lucide="alert-octagon" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h3 class="text-base sm:text-lg font-bold text-white">Resetar suas seleções?</h3>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Esta ação removerá todas as palestras marcadas na sua rota nos 3 dias de evento. Deseja limpar tudo?
+        </p>
+      </div>
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button onclick="closeResetModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm font-semibold transition-all">
+          Cancelar
+        </button>
+        <button onclick="confirmResetAll()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/30 transition-all">
+          Sim, Limpar Tudo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print/Export Modal -->
+  <div id="modal-print" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="printer" class="w-5 h-5 text-cyan-400"></i>
+          <h3 class="text-base sm:text-lg font-bold text-white">Imprimir / Salvar Rota em PDF</h3>
+        </div>
+        <button onclick="closePrintModal()" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="text-xs sm:text-sm text-slate-300 space-y-2">
+        <p>Gere uma versão limpa da sua rota pessoal para levar no celular ou imprimir.</p>
+        <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700 flex items-center justify-between">
+          <span class="text-xs">Palestras selecionadas: <strong class="text-cyan-400 font-bold text-sm" id="print-count-talks">0</strong></span>
+          <button onclick="executeBrowserPrint()" class="px-3.5 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1.5 transition-all">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i> Imprimir / PDF
+          </button>
+        </div>
+      </div>
+      <div id="print-preview-content" class="bg-white text-slate-900 p-4 sm:p-5 rounded-xl text-xs space-y-4 max-h-80 overflow-y-auto">
+        <!-- Rendered print preview -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-box" class="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-cyan-500/40 text-slate-100 shadow-2xl text-xs sm:text-sm">
+    <i data-lucide="check" id="toast-icon" class="w-4 h-4 text-cyan-400 shrink-0"></i>
+    <span id="toast-message" class="font-medium">Ação concluída</span>
+  </div>
+  <script>
+    /* Complete Database of DAE 2026 Talks Extracted from HTML sources */
+    const EVENT_DATA = {
+      // DIA 29 (Quinta)
+      "29": [
+        // Sala 1
+        { id: "29-s1-1", dia: "29", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "17:30 – 18:45", start: 1050, end: 1125, tit: "Credenciamento dos participantes", pal: "A definir" },
+        { id: "29-s1-2", dia: "29", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "19:00 – 19:20", start: 1140, end: 1160, tit: "Abertura Oficial", pal: "Cláudio Farenzena · Advogado" },
+        { id: "29-s1-3", dia: "29", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "19:25 – 20:00", start: 1165, end: 1200, tit: "Cinco décadas de direito ambiental no Brasil: de onde viemos, onde estamos e para onde estamos indo", pal: "Marcelo Buzaglo Dantas · Advogado e doutrinador" },
+        { id: "29-s1-4", dia: "29", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "20:00 – 20:15", start: 1200, end: 1215, tit: "Lançamento do Livro: Leading Cases Ambientais Analisados pela Doutrina - Volume 2", pal: "Marcelo Buzaglo Dantas · Advogado e doutrinador" },
+        { id: "29-s1-5", dia: "29", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "20:30 – 20:55", start: 1230, end: 1255, tit: "Demandas estruturais ambientais: como o Judiciário enfrenta conflitos ambientais complexos que atingem bairros ou cidades inteiras", pal: "Charles Giacomini · Juiz Federal" },
+        { id: "29-s1-6", dia: "29", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "21:00 – 21:25", start: 1260, end: 1285, tit: "Lei Geral do Licenciamento Ambiental: impactos, controvérsias, aplicação concreta e uma leitura prática para advogados, técnicos e gestores públicos", pal: "Alexandre Sion · Advogado" },
+        { id: "29-s1-7", dia: "29", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "21:30 – 21:55", start: 1290, end: 1315, tit: "O direito da construção civil e a restinga na perspectiva dos tribunais", pal: "Marcelo Mendes · Procurador Geral de Santa Catarina" },
+        { id: "29-s1-8", dia: "29", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "22:00 – 22:25", start: 1320, end: 1345, tit: "Soberania, preservação e eventos climáticos, um falso conflito", pal: "Sérgio Etchegoyen · General do Exército" },
+        
+        // Sala 2
+        { id: "29-s2-1", dia: "29", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "20:30 – 20:55", start: 1230, end: 1255, tit: "A Regularização Fundiária do Século XXI: avanços, estratégias, oportunidades.", pal: "Bruno Kono · Presidente do Iterpa - Pará" },
+        { id: "29-s2-2", dia: "29", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "21:00 – 21:25", start: 1260, end: 1285, tit: "A inversão do ônus da prova em processos judiciais ambientais: regra automática ou excepcionalidade?", pal: "Eduardo de Campos Ferreira · Advogado" },
+        { id: "29-s2-3", dia: "29", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "21:30 – 21:55", start: 1290, end: 1315, tit: "Gerenciamento de Crises Ambientais: comunicação com órgãos públicos, imprensa, comunidade e mercado", pal: "Roberta Danelon Leonhardt · Advogada" },
+        { id: "29-s2-4", dia: "29", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "22:00 – 22:25", start: 1320, end: 1345, tit: "A reconfiguração do risco ambiental na gestão de resíduos e o papel estruturante da advocacia na Política Nacional de Resíduos Sólidos", pal: "Lorena Saboya · Advogada" },
+
+        // Sala 3
+        { id: "29-s3-1", dia: "29", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "20:30 – 20:55", start: 1230, end: 1255, tit: "O papel das Secretarias Estaduais de Meio Ambiente na governança ambiental e seus desafios", pal: "Guilherme Dallacosta · Secretário de Meio Ambiente de Santa Catarina" },
+        { id: "29-s3-2", dia: "29", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "21:00 – 21:25", start: 1260, end: 1285, tit: "Responsabilidade sem causa? O risco da diluição do nexo causal no direito ambiental", pal: "Márcio Silva Pereira · Advogado" },
+        { id: "29-s3-3", dia: "29", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "21:30 – 21:55", start: 1290, end: 1315, tit: "Direito Ambiental sem arbitrariedade: técnica, legalidade e segurança jurídica na atuação administrativa", pal: "Leonardo Bussolotto · Advogado" },
+        { id: "29-s3-4", dia: "29", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "22:00 – 22:25", start: 1320, end: 1345, tit: "Oficina prática de como atuar em casos de áreas urbanas consolidadas consideradas APPs pelo município", pal: "Mateus Stallivieri da Costa · Advogado" },
+
+        // Sala 4
+        { id: "29-s4-1", dia: "29", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "20:30 – 20:55", start: 1230, end: 1255, tit: "Da exigência à aprovação: o que fazer para transformar ESG em acesso a financiamento e seguros", pal: "Luciana Vianna Pereira · Advogada" },
+        { id: "29-s4-2", dia: "29", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "21:00 – 21:25", start: 1260, end: 1285, tit: "A visão recursal do Consema sobre autos de infração ambiental: padrões, falhas e aprendizados", pal: "Alini Masson · Advogada e Consema" },
+        { id: "29-s4-3", dia: "29", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "21:30 – 21:55", start: 1290, end: 1315, tit: "Caracterização de nascentes e hidrogeologia", pal: "Vitor Muller · Diretor do CREA/SC" },
+        { id: "29-s4-4", dia: "29", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "22:00 – 22:25", start: 1320, end: 1345, tit: "Workshop Compensação Ambiental do Zero: o que fazer, como fazer e onde estão os riscos", pal: "Luiza Furiatti · Advogada" }
+      ],
+
+      // DIA 30 (Sexta)
+      "30": [
+        // Sala 1
+        { id: "30-s1-1", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "08:30 – 09:30", start: 510, end: 570, tit: "Talks rápidos na plenária principal", pal: "A definir" },
+        { id: "30-s1-2", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "09:30 – 09:55", start: 570, end: 595, tit: "Novas licenças ambientais e hipóteses de dispensa: como aplicar as novas modalidades de licença ambiental sem erro", pal: "Eduardo Fortunato Bim · Advogado Geral da União" },
+        { id: "30-s1-3", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "10:00 – 10:25", start: 600, end: 625, tit: "CAR como principal instrumento de governança ambiental: estrutura, análise e utilização de dados para tomada de decisão", pal: "Rodrigo Bressane · Advogado" },
+        { id: "30-s1-4", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "10:30 – 10:55", start: 630, end: 655, tit: "Controle judicial dos atos administrativos ambientais: legalidade, proporcionalidade e proteção ambiental", pal: "Ana Cristina Blasi · Desembargadora TRF4" },
+        { id: "30-s1-5", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "11:00 – 11:25", start: 660, end: 685, tit: "O papel do CREA-SC na valorização dos profissionais técnicos da área ambiental", pal: "Carlos Alberto Kita Xavier · Presidente do CREA-SC" },
+        { id: "30-s1-6", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "11:30 – 11:55", start: 690, end: 715, tit: "Lições práticas: ACP do Carvão e ações estruturais correlatas", pal: "Camila Lapolli · Juíza federal" },
+        { id: "30-s1-7", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "12:00 – 12:25", start: 720, end: 745, tit: "Bastidores da gestão pública: como alinhar eficiência, legalidade e segurança na tomada de decisão de políticas públicas ambientais", pal: "Andrea Vulcanis · Secretária de Meio Ambiente de Goiás" },
+        { id: "30-s1-8", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "12:30 – 12:55", start: 750, end: 775, tit: "Precedentes Ambientais Cooperativos Transnacionais", pal: "Luiz Felipe Schuch · Desembargador TJSC" },
+        { id: "30-s1-9", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "13:00 – 13:25", start: 780, end: 805, tit: "NASA e o espaço como Nova Fronteira do Direito Ambiental", pal: "Rosa Maria Miranda · Cientista da Nasa" },
+        { id: "30-s1-10", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "13:30 – 13:55", start: 810, end: 835, tit: "Como o Ironman ajuda na construção da gestão, disciplina, consistência e construção de grandes projetos", pal: "Roberto Lemos · Ironman" },
+        { id: "30-s1-11", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "14:00 – 14:25", start: 840, end: 865, tit: "Desenvolvimento Econômico Sustentável: a experiência do Município de Florianópolis", pal: "Topázio Neto · Prefeito" },
+        { id: "30-s1-12", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "14:30 – 14:45", start: 870, end: 885, tit: "Lançamento do DAE 2027", pal: "Cláudio Farenzena · Advogado" },
+        { id: "30-s1-13", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "15:00 – 16:00", start: 900, end: 960, tit: "Curso de Brique", pal: "Chico Vendedor Raiz · Humor" },
+        { id: "30-s1-14", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "16:05 – 16:30", start: 965, end: 990, tit: "De pioneiros a réus: a criminalização de quem colonizou a Amazônia", pal: "Leonardo Sidonio · Advogado" },
+        { id: "30-s1-15", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "16:35 – 17:35", start: 995, end: 1055, tit: "Conservação se faz com gente de barriga cheia", pal: "Richard Rasmussen · Biólogo" },
+        { id: "30-s1-16", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "17:40 – 18:05", start: 1060, end: 1085, tit: "Ativismo judicial e meio ambiente: ações espetaculares, decisões contraditórias e ineficazes, insegurança jurídica latente", pal: "Werner Grau · Advogado" },
+        { id: "30-s1-17", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "18:10 – 18:35", start: 1090, end: 1115, tit: "Consequencialismo das decisões judiciais: limites, riscos, impactos econômicos e possibilidades", pal: "Marcelo Pizolati · Desembargador TJSC" },
+        { id: "30-s1-18", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "18:40 – 19:05", start: 1120, end: 1145, tit: "Produzir, conservar e incluir: o modelo de Mato Grosso para conciliar produção e preservação!", pal: "Mauren Lazzaretti · Secretária de Meio Ambiente do Mato Grosso" },
+        { id: "30-s1-19", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "19:10 – 19:35", start: 1150, end: 1175, tit: "O Direito Ambiental brasileiro tem um lado só?", pal: "Daniel Raupp · Juiz Federal" },
+        { id: "30-s1-20", dia: "30", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "19:40 – 20:10", start: 1180, end: 1210, tit: "Entrega de homenagens aos Embaixadores", pal: "Cláudio Farenzena · Advogado ambiental" },
+
+        // Sala 2
+        { id: "30-s2-1", dia: "30", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "09:30 – 09:55", start: 570, end: 595, tit: "Áreas de Preservação Permanentes de Reservatórios Artificiais: o que muda após 2012 e quais os potenciais impactos da OJN 54 PFE-IBAMA para os imóveis rurais lindeiros", pal: "Adriana Coli · Advogada" },
+        { id: "30-s2-2", dia: "30", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "10:00 – 10:45", start: 600, end: 645, tit: "Comunicação e Vendas com o Produtor Rural: aprenda a fechar contratos de R$ 1 mil a R$ 1 milhão no Agro", pal: "Augusto Caldeira · Advogado" },
+        { id: "30-s2-3", dia: "30", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "10:50 – 11:15", start: 650, end: 675, tit: "Workshop Defesa em Autuações Ambientais: aprenda as estratégias e teses atuais que funcionam", pal: "Beatriz Kowalski · Ex-presidente da Fundação de Meio Ambiente de Florianópolis" },
+        { id: "30-s2-4", dia: "30", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "11:20 – 12:05", start: 680, end: 725, tit: "O que mudou e como conduzir EIA e RIMA na Nova Lei Geral do Licenciamento Ambiental na Amazônia: os segredos que ninguém te conta", pal: "Amanda Atena · Advogada" },
+        { id: "30-s2-5", dia: "30", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "12:10 – 12:35", start: 730, end: 755, tit: "Fiscalização Ambiental 4.0: como defender o produtor rural na era dos satélites, drones e inteligência artificial", pal: "Dagobertto Santos · Advogado Patrocinador" },
+        { id: "30-s2-6", dia: "30", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "17:50 – 18:15", start: 1070, end: 1095, tit: "Workshop Investigação Defensiva Ambiental: condução, estratégia, prova e segurança nas defesas ambientais", pal: "Charles Wilson de Souza · Advogado e Policial militar da reserva" },
+        { id: "30-s2-7", dia: "30", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "18:20 – 18:45", start: 1100, end: 1125, tit: "Workshop Execução Fiscal de Multa Ambiental: aprenda estratégias para reduzir, suspender ou anular cobranças", pal: "Rafael Matthes · Advogado" },
+        { id: "30-s2-8", dia: "30", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "18:50 – 19:15", start: 1130, end: 1155, tit: "Responsabilidade propter rem no Direito Ambiental: uma leitura crítica da aplicação prática do instituto", pal: "Fernanda Crippa · Advogada" },
+        { id: "30-s2-9", dia: "30", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "19:20 – 19:45", start: 1160, end: 1185, tit: "Licenciamento ambiental de atividades que impactam terrenos de marinha: questões jurídicas e cautelas técnicas a serem observadas", pal: "Rodrigo Ponce Bueno · Advogado" },
+
+        // Sala 3
+        { id: "30-s3-1", dia: "30", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "09:30 – 09:55", start: 570, end: 595, tit: "Fiscalização ambiental e responsabilização: estratégias de atuação administrativa e judicial", pal: "Alexandre Burmann · Advogado" },
+        { id: "30-s3-2", dia: "30", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "10:00 – 10:25", start: 600, end: 625, tit: "Autoridades envolvidas no licenciamento na Nova Lei Geral do Licenciamento Ambiental: quem realmente decide e como lidar na prática para evitar conflitos", pal: "Luciana Gil · Advogada" },
+        { id: "30-s3-3", dia: "30", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "10:30 – 10:55", start: 630, end: 655, tit: "Contraditório e ampla defesa ao uso exclusivo de imagens de satélite como meio de prova em processos administrativos e judiciais ambientais", pal: "Cristiane Jaccoud · Advogada" },
+        { id: "30-s3-4", dia: "30", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "11:00 – 11:25", start: 660, end: 685, tit: "Limites da responsabilidade civil do adquirente de área contaminada: até onde vai o risco e onde começa a defesa", pal: "Fernanda Tanure · Advogada" },
+        { id: "30-s3-5", dia: "30", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "11:30 – 11:55", start: 690, end: 715, tit: "Prevalência da manifestação técnica do órgão licenciador: primazia técnica e resolução de conflito", pal: "Josevan Carmo da Cruz Junior · Presidente IMA-SC" },
+        { id: "30-s3-6", dia: "30", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "12:00 – 12:25", start: 720, end: 745, tit: "Lei 14.285/21 - Os efeitos da “Cama de Procusto” nas áreas ripárias urbanas protegidas", pal: "Paulo Locatelli · Procurador de Justiça no MPSC" },
+        { id: "30-s3-7", dia: "30", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "12:30 – 12:55", start: 750, end: 775, tit: "Segurança Jurídica, Regularização Ambiental e Desenvolvimento Rural: a experiência de Roraima", pal: "Wagner Severo · Presidente da Femarh" },
+        { id: "30-s3-8", dia: "30", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "17:50 – 18:15", start: 1070, end: 1095, tit: "Workshop Incêndios florestais: como estruturar defesa técnica, desconstituir o nexo causal e evitar responsabilização ambiental", pal: "Tatiana Monteiro · Advogada" },
+        { id: "30-s3-9", dia: "30", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "18:20 – 19:15", start: 1100, end: 1155, tit: "Oficina prática de REURB do Zero: o que fazer, como fazer e onde estão os riscos e oportunidades", pal: "Roberto Neves e Michele Copetti · Advogados" },
+        { id: "30-s3-10", dia: "30", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "19:20 – 19:45", start: 1160, end: 1185, tit: "Direito ambiental urbanístico aplicado: soluções jurídicas para os conflitos do crescimento das cidades", pal: "Maykon Fagundes · Advogado" },
+
+        // Sala 4
+        { id: "30-s4-1", dia: "30", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "09:30 – 09:55", start: 570, end: 595, tit: "Crédito de Reposição Florestal em licenciamentos de supressão de vegetação: sua importância no setor público, industrial e ambiental", pal: "Jean Paulo Rosa · Engenheiro Florestal" },
+        { id: "30-s4-2", dia: "30", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "10:00 – 10:45", start: 600, end: 645, tit: "A responsabilidade técnica nos processos de licenciamento ambiental", pal: "Fernanda Vanhoni · Vice-Presidente do CREA-SC" },
+        { id: "30-s4-3", dia: "30", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "10:50 – 11:35", start: 650, end: 695, tit: "Licença de Operação Corretiva: requisitos, procedimentos e reflexos na responsabilização penal e administrativa", pal: "Pedro Niebuhr · Advogado" },
+        { id: "30-s4-4", dia: "30", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "11:40 – 12:05", start: 700, end: 725, tit: "Licenciamento em outros países: o que o direito ambiental brasileiro pode aprender com a engenharia da União Europeia", pal: "Edney Farias · Consultor Ambiental Internacional" },
+        { id: "30-s4-5", dia: "30", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "17:50 – 18:15", start: 1070, end: 1095, tit: "A fiscalização ambiental e devido processo legal administrativo: dever de motivação e padrões mínimos de prova", pal: "Délton Winter de Carvalho · Advogado" },
+        { id: "30-s4-6", dia: "30", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "18:20 – 18:45", start: 1100, end: 1125, tit: "A indevida generalização da Restinga como APP: fundamentos técnicos e legais para sua correta delimitação", pal: "Victor Silvestre · Engenheiro ambiental" },
+        { id: "30-s4-7", dia: "30", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "18:50 – 19:15", start: 1130, end: 1155, tit: "Oficina Prática de como aplicar a Teoria do Ganho Ambiental em processos de demolição e licenciamento", pal: "Gabriel Cardoso Galli · Advogado" },
+        { id: "30-s4-8", dia: "30", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "19:20 – 19:45", start: 1160, end: 1185, tit: "Supressão de vegetação na Mata Atlântica: quando é possível, quando é vedada e quais os riscos", pal: "Jose Gustavo de Oliveira Franco · Advogado" },
+
+        // Sala 5 (Mentoria)
+        { id: "30-s5-1", dia: "30", salaId: "s5", salaCodigo: "Sala 5", salaClassificacao: "Sala Mentoria (Backstage)", hora: "10:00 – 11:00", start: 600, end: 660, tit: "Mentoria com Andrea Vulcanis", pal: "Luiza Furiatti · Entrevistadora" },
+        { id: "30-s5-2", dia: "30", salaId: "s5", salaCodigo: "Sala 5", salaClassificacao: "Sala Mentoria (Backstage)", hora: "11:00 – 12:00", start: 660, end: 720, tit: "Mentoria com Werner Grau", pal: "Luciana Vianna Pereira · Entrevistadora" },
+        { id: "30-s5-3", dia: "30", salaId: "s5", salaCodigo: "Sala 5", salaClassificacao: "Sala Mentoria (Backstage)", hora: "17:30 – 18:30", start: 1050, end: 1110, tit: "Mentoria com Mauren Lazzaretti", pal: "Bruno Trajano · Entrevistador" },
+        { id: "30-s5-4", dia: "30", salaId: "s5", salaCodigo: "Sala 5", salaClassificacao: "Sala Mentoria (Backstage)", hora: "18:30 – 19:30", start: 1110, end: 1170, tit: "Mentoria com Richard Rasmussen", pal: "Nelson Tonon · Entrevistador" }
+      ],
+
+      // DIA 31 (Sábado)
+      "31": [
+        // Sala 1
+        { id: "31-s1-1", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "08:30 – 09:30", start: 510, end: 570, tit: "Talks rápidos na plenária principal", pal: "A definir" },
+        { id: "31-s1-2", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "09:30 – 09:55", start: 570, end: 595, tit: "Como ferramentas digitais e inteligência artificial estão transformando a atuação do advogado na Regularização Fundiária Rural na Amazônia", pal: "Miguel Gualberto · Advogado" },
+        { id: "31-s1-3", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "10:00 – 10:25", start: 600, end: 625, tit: "Acordos ambientais e os limites do inegociável", pal: "Rafael Martins Costa Moreira · Juiz Federal" },
+        { id: "31-s1-4", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "10:30 – 10:55", start: 630, end: 655, tit: "Tutela Ambiental: Consenso e Efetividade Além da Judicialização", pal: "Ana Lídia Silva Mello · Juíza federal" },
+        { id: "31-s1-5", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "11:00 – 11:25", start: 660, end: 685, tit: "CEJUSCs ambientais como instrumento de governança judicial", pal: "Sílvio Dagoberto Orsatto · Desembargador" },
+        { id: "31-s1-6", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "11:30 – 11:55", start: 690, end: 715, tit: "Ativismo judicial ambiental no STF: os riscos de decisões que ultrapassam a competência constitucional", pal: "Nelson Tonon · Advogado" },
+        { id: "31-s1-7", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "12:00 – 12:25", start: 720, end: 745, tit: "Solução Global do Passivo Ambiental: negociação integrada nas esferas administrativa, cível e criminal entre Ministério Público, órgão ambiental e o infrator", pal: "Analu Librelato Longo · Promotora no MPSC" },
+        { id: "31-s1-8", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "12:30 – 12:55", start: 750, end: 775, tit: "Advogado que Ninguém Entende, Ninguém Contrata: como se comunicar com clareza, autoridade e valor sem juridiquês", pal: "Karen Fabiani · Jornalista e Comunicadora" },
+        { id: "31-s1-9", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "13:00 – 13:25", start: 780, end: 805, tit: "???????????????? (Isso não foi um erro de digitação. É o tema de palestra, mesmo)", pal: "Cláudio Farenzena · Advogado ambiental" },
+        { id: "31-s1-10", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "13:30 – 13:55", start: 810, end: 835, tit: "A Natureza Sem Gente: o risco de um ambientalismo desconectado", pal: "Samanta Pineda · Advogada" },
+        { id: "31-s1-11", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "14:00 – 14:25", start: 840, end: 865, tit: "A tabela referencial de preços do INCRA como parâmetro de razoabilidade nas condenações por danos ambientais em ações civis públicas", pal: "Alexandre Sócrates Mendes · Juiz Alta Floresta/MT" },
+        { id: "31-s1-12", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "14:30 – 14:55", start: 870, end: 895, tit: "Workshop Nova Advocacia na era da inteligência artificial: como aumentar produtividade, reduzir tempo e escalar resultados", pal: "Eder Marques · Especialista em Inteligência Artificial" },
+        { id: "31-s1-13", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "15:00 – 15:25", start: 900, end: 925, tit: "Moratórias e restrições infralegais: quem define o que é equilíbrio ecológico no Brasil?", pal: "Thiago Rocha · Advogado" },
+        { id: "31-s1-14", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "15:30 – 15:55", start: 930, end: 955, tit: "Marketing Jurídico: Atração de Clientes com Estratégia e Ética", pal: "Wiliam Koester · Publicitário" },
+        { id: "31-s1-15", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "16:00 – 16:30", start: 960, end: 990, tit: "Recursos ao STJ e STF: aprenda a pensar como um Ministro para aumentar suas chances de sucesso nos tribunais superiores", pal: "Giovanni Fialho · Ex-assessor de Ministro do STJ" },
+        { id: "31-s1-16", dia: "31", salaId: "s1", salaCodigo: "Sala 1", salaClassificacao: "Plenária Principal", hora: "16:30 – 23:00", start: 990, end: 1380, tit: "Open Chopp e vista para a Beira Mar Norte de Florianópolis", pal: "Confraternização Oficial DAE" },
+
+        // Sala 2
+        { id: "31-s2-1", dia: "31", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "09:30 – 09:55", start: 570, end: 595, tit: "Recuperação judicial no agro: desafios para reestruturar dívidas no agronegócio", pal: "Marcos Andrey de Sousa · Advogado" },
+        { id: "31-s2-2", dia: "31", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "10:00 – 10:45", start: 600, end: 645, tit: "Transporte irregular de madeira e os desafios práticos da advocacia ambiental na Floresta Amazônica, abrangendo crimes, infrações e fiscalização", pal: "Joacy Leão · Advogado" },
+        { id: "31-s2-3", dia: "31", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "10:50 – 11:15", start: 650, end: 675, tit: "Do zero ao primeiro contrato: como iniciar uma atuação de sucesso na advocacia ambiental e do agronegócio", pal: "Bruno Trajano · Advogado" },
+        { id: "31-s2-4", dia: "31", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "11:20 – 11:45", start: 680, end: 705, tit: "Como a integração entre a consultoria técnica, advocacia e compliance fortalecem a defesa ambiental", pal: "Marina Lima da Silva · Bióloga" },
+        { id: "31-s2-5", dia: "31", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "11:50 – 12:35", start: 710, end: 755, tit: "Workshop Como atuar em crimes ambientais: estratégia completa de defesa na prática", pal: "Lucas Dantas Evaristo de Souza · Advogado" },
+        { id: "31-s2-6", dia: "31", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "12:40 – 13:05", start: 760, end: 785, tit: "Workshop Advogar no Tribunal: o que funciona (e o que não funciona) no contato com desembargadores", pal: "Jorge Maurique · Desembargador aposentado" },
+        { id: "31-s2-7", dia: "31", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "13:10 – 13:35", start: 790, end: 815, tit: "Créditos de Carbono em Ações Civis Públicas: estratégias inovadoras para transformar ativos ambientais em soluções negociadas com o Ministério Público", pal: "Ayslan Moraes · Advogado MT e SP" },
+        { id: "31-s2-8", dia: "31", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "13:40 – 14:05", start: 820, end: 845, tit: "Prescrição intercorrente ambiental: a (in)constitucionalidade de Estados e Municípios fixarem prazos maiores que a lei federal", pal: "Rodrigo Barros · Advogado" },
+        { id: "31-s2-9", dia: "31", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "14:10 – 14:35", start: 850, end: 875, tit: "Oficina Reforma Tributária no Agronegócio: como transformar os litígios tributários do produtor rural em oportunidades", pal: "Luis Guilherme de Almeida Ribeiro · Advogado" },
+        { id: "31-s2-10", dia: "31", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "14:40 – 15:05", start: 880, end: 905, tit: "Oficina sobre apreensão e destruição de bens por órgãos ambientais: o que fazer antes, durante e depois da fiscalização para evitar prejuízos ao produtor rural", pal: "Alfredo Bertunes de Araújo · Advogado" },
+        { id: "31-s2-11", dia: "31", salaId: "s2", salaCodigo: "Sala 2", salaClassificacao: "Advogados", hora: "15:10 – 15:35", start: 910, end: 935, tit: "Workshop Como criar condomínio rural com finalidade urbana e evitar ilegalidades: o case de São João Batista", pal: "Fernanda Brasil Duarte · Engenharia ambiental" },
+
+        // Sala 3
+        { id: "31-s3-1", dia: "31", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "09:30 – 09:55", start: 570, end: 595, tit: "Litígio estrutural: a importância da prova técnica na construção de soluções complexas.", pal: "Gustavo Hermes de Oliveira · Advogado" },
+        { id: "31-s3-2", dia: "31", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "10:20 – 10:45", start: 620, end: 645, tit: "Regularização fundiária e mercado de carbono: segurança jurídica para implementação de projetos de carbono no Brasil", pal: "Fernanda Sequeira · Procuradora do Iterpa" },
+        { id: "31-s3-3", dia: "31", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "10:50 – 11:15", start: 650, end: 675, tit: "Responsabilidade, pressão e resultado: o dia a dia real de quem decide no órgão ambiental", pal: "Alexandre Waltrick · Secretário de Meio Ambiente de Florianópolis" },
+        { id: "31-s3-4", dia: "31", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "11:20 – 11:45", start: 680, end: 705, tit: "Do processo à decisão: como destravar análises ambientais sem comprometer a legalidade", pal: "Cláudio Soares da Silveira · Ex-procurador geral IMA-SC" },
+        { id: "31-s3-5", dia: "31", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "12:00 – 12:25", start: 720, end: 745, tit: "Compliance ambiental que gera resultado: como transformar obrigação em vantagem econômica", pal: "Henrique Ziesemer · Promotor de Justiça - MPSC" },
+        { id: "31-s3-6", dia: "31", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "12:30 – 12:55", start: 750, end: 775, tit: "A desjudicialização de conflitos ambientais: análise técnica do modelo de conciliação no Estado de Mato Grosso", pal: "Davi Maia Castelo Branco Ferreira · Subprocurador-Geral de Defesa Ambiental" },
+        { id: "31-s3-7", dia: "31", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "13:00 – 13:25", start: 780, end: 805, tit: "Workshop de como utilizar a Inteligência Artificial para acelerar o trabalho dos servidores públicos na análise de processos ambientais", pal: "Francisco de Assis da Silva Júnior · Servidor MG" },
+        { id: "31-s3-8", dia: "31", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "13:30 – 13:55", start: 810, end: 835, tit: "Oficina prática sobre criminalização da atuação técnica e orientações para resguardar a atividade de analistas e consultores ambientais", pal: "Lucas Maykot · Advogado" },
+        { id: "31-s3-9", dia: "31", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "14:00 – 14:25", start: 840, end: 865, tit: "APP no mapa versus realidade: como lidar com divergências entre critérios técnicos e jurídicos", pal: "Rodrigo Sato · Geólogo" },
+        { id: "31-s3-10", dia: "31", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "14:30 – 14:55", start: 870, end: 895, tit: "Compliance ambiental: como sair do papel e estruturar controle real nas empresas", pal: "Walter Cerqueira · Advogado" },
+        { id: "31-s3-11", dia: "31", salaId: "s3", salaCodigo: "Sala 3", salaClassificacao: "Servidores Públicos", hora: "15:00 – 15:25", start: 900, end: 925, tit: "Demolição de imóvel em APP: quando a Administração Pública deve demolir e quando NÃO deve", pal: "Rafael Poletto · Advogado" },
+
+        // Sala 4
+        { id: "31-s4-1", dia: "31", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "09:30 – 10:15", start: 570, end: 615, tit: "O técnico no banco dos réus: o peso da assinatura e os limites da responsabilização profissional", pal: "Lenon Taques · Advogado" },
+        { id: "31-s4-2", dia: "31", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "10:20 – 11:05", start: 620, end: 665, tit: "Laudo Ambiental: como técnicos podem produzir prova técnica para defender e proteger o produtor rural em processos administrativos e judiciais", pal: "Dagobertto Santos · Advogado Patrocinador" },
+        { id: "31-s4-3", dia: "31", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "11:10 – 11:55", start: 670, end: 715, tit: "Incorporação imobiliária em terreno de marinha passo a passo", pal: "Nabih Chraim" },
+        { id: "31-s4-4", dia: "31", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "12:00 – 12:25", start: 720, end: 745, tit: "Atuação dos Órgãos Ambientais: como evitar erros que geram nulidade e desperdício de tempo do agente público", pal: "Alice Cruz · Advogada e Juíza do TRE/SC" },
+        { id: "31-s4-5", dia: "31", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "12:30 – 12:55", start: 750, end: 775, tit: "Workshop: Regularização fundiária de imóveis rurais: como antecipar problemas, resolver rápido e gerar resultado para o produtor rural", pal: "Arthur Buava · Advogado" },
+        { id: "31-s4-6", dia: "31", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "13:00 – 13:25", start: 780, end: 805, tit: "O problema real do ESG: por que empresas não conseguem aplicar e onde está a oportunidade para advogados e técnicos", pal: "Carolina Limonti · Advogada" },
+        { id: "31-s4-7", dia: "31", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "13:30 – 13:55", start: 810, end: 835, tit: "O laudo resolve tudo? Responsabilidade ambiental civil, penal e administrativa e os limites da atuação técnica", pal: "Cristine Dagostin · Advogada" },
+        { id: "31-s4-8", dia: "31", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "14:00 – 14:25", start: 840, end: 865, tit: "Oficina prática sobre produção de prova técnica: como advogados e técnicos devem atuar juntos para ganhar casos", pal: "Rafael Tímbola · Engenheiro ambiental" },
+        { id: "31-s4-9", dia: "31", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "14:30 – 14:55", start: 870, end: 895, tit: "Workshop de Gestão Empresarial em sociedades de serviço e em empresas com altos riscos de responsabilidade à pessoa física", pal: "Karine Maculan · Gestora" },
+        { id: "31-s4-10", dia: "31", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "15:00 – 15:25", start: 900, end: 925, tit: "Reforma Tributária: o que advogados e técnicos ambientais precisam saber para proteger seus escritórios e empresas de consultoria ambiental", pal: "Rafael Damo · Contador" },
+        { id: "31-s4-11", dia: "31", salaId: "s4", salaCodigo: "Sala 4", salaClassificacao: "Técnicos Ambientais", hora: "15:30 – 15:55", start: 930, end: 955, tit: "Workshop Como aumentar sua produtividade em 1.000% com Inteligência Artificial", pal: "Luiz Pessatto · Especialista em Inteligência Artificial" },
+
+        // Sala 5 (Mentoria)
+        { id: "31-s5-1", dia: "31", salaId: "s5", salaCodigo: "Sala 5", salaClassificacao: "Sala Mentoria (Backstage)", hora: "10:00 – 11:00", start: 600, end: 660, tit: "Mentoria com Francisco de Assis da Silva Júnior", pal: "Carolina Limonti · Entrevistadora" },
+        { id: "31-s5-2", dia: "31", salaId: "s5", salaCodigo: "Sala 5", salaClassificacao: "Sala Mentoria (Backstage)", hora: "11:00 – 12:00", start: 660, end: 720, tit: "Mentoria com Ana Cristina Blasi", pal: "Giovanni Fialho · Entrevistador" },
+        { id: "31-s5-3", dia: "31", salaId: "s5", salaCodigo: "Sala 5", salaClassificacao: "Sala Mentoria (Backstage)", hora: "13:30 – 14:30", start: 810, end: 870, tit: "Mentoria com Analu Librelato Longo", pal: "Victor Silvestre · Entrevistador" },
+        { id: "31-s5-4", dia: "31", salaId: "s5", salaCodigo: "Sala 5", salaClassificacao: "Sala Mentoria (Backstage)", hora: "14:30 – 15:30", start: 870, end: 930, tit: "Mentoria com Samanta Pineda", pal: "Arthur Buava · Entrevistador" }
+      ]
+    };
+
+    const ROOM_METADATA = [
+      { id: "s1", code: "Sala 1", title: "Plenária Principal", desc: "Debates centrais e conferências magnas", color: "sala-s1" },
+      { id: "s2", code: "Sala 2", title: "Advogados", desc: "Estratégias processuais e teses defensivas", color: "sala-s2" },
+      { id: "s3", code: "Sala 3", title: "Servidores Públicos", desc: "Gestão, segurança administrativa e órgãos ambientais", color: "sala-s3" },
+      { id: "s4", code: "Sala 4", title: "Técnicos Ambientais", desc: "Laudos, perícias, biologia, engenharia e CAR", color: "sala-s4" },
+      { id: "s5", code: "Sala 5", title: "Sala Mentoria (Backstage)", desc: "Sessões intimistas de mentoria com especialistas", color: "sala-s5" },
+    ];
+
+    /* Storage Key & Initial State */
+    const STORAGE_KEY = "dae_2026_user_schedule_selection_v3";
+    let selectedTalkIds = new Set();
+    let highlightedTalkId = null; // Card highlighted on click (not selected)
+    let currentDay = "29";
+    let currentSearchTerm = "";
+    let isItineraryView = false;
+    let mobileActiveRoomFilter = "all";
+
+    function initApp() {
+      loadFromStorage();
+      renderDayTabs();
+      renderCurrentView();
+      updateGlobalCounters();
+      lucide.createIcons();
+    }
+
+    function loadFromStorage() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            selectedTalkIds = new Set(parsed);
+          }
+        }
+      } catch (e) {
+        console.error("Falha ao ler dados locais:", e);
+        selectedTalkIds = new Set();
+      }
+    }
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selectedTalkIds)));
+      } catch (e) {
+        console.error("Falha ao salvar dados:", e);
+      }
+    }
+    /* Conflict Detection Engine */
+    function getSelectedTalksList() {
+      const allTalks = [];
+      Object.keys(EVENT_DATA).forEach(day => {
+        EVENT_DATA[day].forEach(talk => {
+          if (selectedTalkIds.has(talk.id)) {
+            allTalks.push(talk);
+          }
+        });
+      });
+      return allTalks;
+    }
+
+    function getConflictsMap() {
+      const selected = getSelectedTalksList();
+      const conflicts = new Map(); // talkId -> array of conflicting talkIds
+
+      for (let i = 0; i < selected.length; i++) {
+        for (let j = i + 1; j < selected.length; j++) {
+          const t1 = selected[i];
+          const t2 = selected[j];
+
+          // Check if same day and time intervals overlap
+          if (t1.dia === t2.dia) {
+            const overlap = (t1.start < t2.end && t1.end > t2.start);
+            if (overlap) {
+              if (!conflicts.has(t1.id)) conflicts.set(t1.id, []);
+              if (!conflicts.has(t2.id)) conflicts.set(t2.id, []);
+              conflicts.get(t1.id).push(t2.id);
+              conflicts.get(t2.id).push(t1.id);
+            }
+          }
+        }
+      }
+      return conflicts;
+    }
+
+    /* CARD HIGHLIGHT (Only highlights the card visually upon clicking the body) */
+    function highlightCard(talkId, event) {
+      const prevHighlightedId = highlightedTalkId;
+      if (highlightedTalkId === talkId) {
+        highlightedTalkId = null; // Un-highlight
+      } else {
+        highlightedTalkId = talkId;
+      }
+      
+      // Update previous and newly highlighted cards in-place without re-rendering the whole page
+      if (prevHighlightedId) {
+        updateCardDOM(prevHighlightedId);
+      }
+      if (highlightedTalkId) {
+        updateCardDOM(highlightedTalkId);
+      }
+    }
+
+    /* SELECTION TOGGLE (Triggered EXCLUSIVELY via the dedicated + / ✓ button) */
+    function toggleSelectionViaButton(talkId, event) {
+      if (event) {
+        event.stopPropagation(); // Prevents triggering card highlight
+      }
+
+      if (selectedTalkIds.has(talkId)) {
+        selectedTalkIds.delete(talkId);
+        showToast("Removida da sua rota!");
+      } else {
+        selectedTalkIds.add(talkId);
+        showToast("Adicionada à sua rota pessoal!");
+      }
+
+      saveToStorage();
+      updateGlobalCounters();
+
+      if (isItineraryView) {
+        // In Itinerary view, re-render the itinerary list keeping scroll
+        renderItineraryView();
+        lucide.createIcons();
+      } else {
+        // In Grid view, re-render affected cards in-place without re-rendering container to preserve scroll position!
+        const conflicts = getConflictsMap();
+        // Update all selected cards and conflicting cards to accurately reflect state
+        document.querySelectorAll("[id^='card-']").forEach(el => {
+          const id = el.id.replace("card-", "");
+          updateCardDOM(id, conflicts);
+        });
+      }
+    }
+
+    /* Targeted in-place DOM update so the user scroll position is 100% preserved */
+    function updateCardDOM(talkId, precomputedConflicts = null) {
+      const card = document.getElementById(`card-${talkId}`);
+      if (!card) return;
+
+      const conflicts = precomputedConflicts || getConflictsMap();
+      const isSelected = selectedTalkIds.has(talkId);
+      const isConflicted = isSelected && conflicts.has(talkId);
+      const isHighlighted = (highlightedTalkId === talkId);
+
+      // Reset style classes
+      let baseClasses = `group p-3.5 rounded-xl border transition-all cursor-pointer relative select-none flex flex-col justify-between shadow-sm `;
+      if (isConflicted) {
+        baseClasses += `bg-rose-950/35 border-rose-500/90 pulse-conflict `;
+      } else if (isSelected) {
+        baseClasses += `bg-[#04284d]/90 border-cyan-400 ring-1 ring-cyan-400/50 shadow-md shadow-cyan-950/50 `;
+      } else if (isHighlighted) {
+        baseClasses += `bg-[#132c4e] border-cyan-300 ring-2 ring-cyan-400/80 shadow-lg text-slate-100 `;
+      } else {
+        baseClasses += `bg-slate-800/70 border-slate-700/70 hover:bg-slate-800 hover:border-slate-500 text-slate-300 `;
+      }
+      card.className = baseClasses;
+
+      // Update dedicated button
+      const btn = card.querySelector("button[type='button']");
+      if (btn) {
+        btn.title = isSelected ? 'Remover da minha rota' : 'Adicionar à minha rota';
+        btn.className = `w-10 h-10 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-transform active:scale-90 shadow-md shrink-0 ${
+          isSelected 
+            ? (isConflicted ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-rose-900/50' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-900/50 ring-2 ring-emerald-300') 
+            : 'bg-slate-700 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-slate-600'
+        }`;
+        btn.innerHTML = `<i data-lucide="${isSelected ? 'check' : 'plus'}" class="w-5 h-5 sm:w-4 sm:h-4 stroke-[3]"></i>`;
+      }
+
+      // Update hour text color
+      const hourEl = card.querySelector(".time-text-indicator");
+      if (hourEl) {
+        hourEl.className = `time-text-indicator flex items-center gap-1 text-xs font-bold ${isSelected ? (isConflicted ? 'text-rose-400' : 'text-cyan-300') : 'text-slate-400'}`;
+      }
+
+      // Update status badges container
+      const statusContainer = card.querySelector(".card-status-badge-container");
+      if (statusContainer) {
+        if (isConflicted) {
+          statusContainer.innerHTML = `
+            <div class="mt-1 flex items-start gap-1.5 text-[10px] text-rose-200 bg-rose-500/25 border border-rose-500/40 p-1.5 rounded-lg font-bold leading-tight">
+              <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5"></i>
+              <span>Choque de horário com outra palestra selecionada!</span>
+            </div>
+          `;
+        } else if (isSelected) {
+          statusContainer.innerHTML = `
+            <div class="mt-0.5 flex items-center gap-1 text-[10px] text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded font-semibold">
+              <i data-lucide="check-circle" class="w-3 h-3 text-emerald-400 shrink-0"></i>
+              <span>Confirmada na sua rota</span>
+            </div>
+          `;
+        } else if (isHighlighted) {
+          statusContainer.innerHTML = `
+            <div class="mt-0.5 flex items-center gap-1 text-[10px] text-cyan-300 bg-cyan-950/70 border border-cyan-500/30 px-2 py-0.5 rounded font-medium">
+              <i data-lucide="eye" class="w-3 h-3 text-cyan-400 shrink-0"></i>
+              <span>Card destacado (toque no + para marcar)</span>
+            </div>
+          `;
+        } else {
+          statusContainer.innerHTML = '';
+        }
+      }
+
+      lucide.createIcons();
+    }
+
+    function filterMobileRoom(roomId) {
+      mobileActiveRoomFilter = roomId;
+      document.querySelectorAll(".m-room-btn").forEach(btn => {
+        if (btn.getAttribute("data-m-room") === roomId) {
+          btn.className = "m-room-btn shrink-0 px-2.5 py-1 rounded-lg bg-cyan-500 text-slate-950 font-black";
+        } else {
+          btn.className = "m-room-btn shrink-0 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-semibold border border-slate-700";
+        }
+      });
+      renderGridView();
+      lucide.createIcons();
+    }
+
+    function switchDay(day) {
+      currentDay = day;
+      highlightedTalkId = null;
+      renderDayTabs();
+      renderCurrentView();
+      lucide.createIcons();
+    }
+
+    function handleSearch(term) {
+      currentSearchTerm = term.trim().toLowerCase();
+      renderCurrentView();
+      lucide.createIcons();
+    }
+
+    function toggleViewMode() {
+      switchViewTo(isItineraryView ? 'grid' : 'itinerary');
+    }
+
+    function switchViewTo(mode) {
+      isItineraryView = (mode === 'itinerary');
+      const viewGrid = document.getElementById("view-grid");
+      const viewItinerary = document.getElementById("view-itinerary");
+      const txtBtn = document.getElementById("txt-view-mode");
+      const mBtnGrid = document.getElementById("m-btn-grid");
+      const mBtnItinerary = document.getElementById("m-btn-itinerary");
+
+      if (isItineraryView) {
+        viewGrid.classList.add("hidden");
+        viewItinerary.classList.remove("hidden");
+        if (txtBtn) txtBtn.textContent = "Ver Salas";
+        if (mBtnGrid && mBtnItinerary) {
+          mBtnGrid.className = "flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px]";
+          mBtnItinerary.className = "flex flex-col items-center gap-1 text-cyan-400 font-bold text-[10px] relative";
+        }
+      } else {
+        viewGrid.classList.remove("hidden");
+        viewItinerary.classList.add("hidden");
+        if (txtBtn) txtBtn.textContent = "Minha Rota";
+        if (mBtnGrid && mBtnItinerary) {
+          mBtnGrid.className = "flex flex-col items-center gap-1 text-cyan-400 font-bold text-[10px]";
+          mBtnItinerary.className = "flex flex-col items-center gap-1 text-slate-400 font-semibold text-[10px] relative";
+        }
+      }
+      renderCurrentView();
+      lucide.createIcons();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateGlobalCounters() {
+      const count = selectedTalkIds.size;
+      const badge = document.getElementById("badge-total-selected");
+      const mBadge = document.getElementById("m-badge-count");
+      const itineraryBadge = document.getElementById("itinerary-badge-count");
+
+      if (badge) badge.textContent = count;
+      if (mBadge) mBadge.textContent = count;
+      if (itineraryBadge) {
+        itineraryBadge.textContent = `${count} ${count === 1 ? 'palestra escolhida' : 'palestras escolhidas'}`;
+      }
+
+      // Conflict warning indicator
+      const conflicts = getConflictsMap();
+      const conflictPill = document.getElementById("conflict-indicator");
+      const conflictCountTxt = document.getElementById("conflict-count-text");
+      const itineraryConflictsBox = document.getElementById("itinerary-conflicts-box");
+
+      const uniqueConflictCount = conflicts.size;
+      if (uniqueConflictCount > 0) {
+        conflictPill.classList.remove("hidden");
+        conflictCountTxt.textContent = `${uniqueConflictCount} choque(s)!`;
+        if (itineraryConflictsBox) itineraryConflictsBox.classList.remove("hidden");
+      } else {
+        conflictPill.classList.add("hidden");
+        if (itineraryConflictsBox) itineraryConflictsBox.classList.add("hidden");
+      }
+    }
+
+    function renderDayTabs() {
+      document.querySelectorAll(".day-tab").forEach(tab => {
+        const d = tab.getAttribute("data-day");
+        if (d === currentDay) {
+          tab.className = "day-tab shrink-0 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20";
+        } else {
+          tab.className = "day-tab shrink-0 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all bg-slate-900/80 text-slate-300 hover:bg-slate-800 border border-slate-800";
+        }
+      });
+
+      const dayTitleSpan = document.getElementById("grid-day-title");
+      const dayCounter = document.getElementById("day-counter-badge");
+      if (dayTitleSpan && dayCounter) {
+        const names = {
+          "29": "Quinta-Feira (29 de Outubro)",
+          "30": "Sexta-Feira (30 de Outubro)",
+          "31": "Sábado (31 de Outubro)"
+        };
+        dayTitleSpan.textContent = names[currentDay] || "";
+        const totalDayTalks = (EVENT_DATA[currentDay] || []).length;
+        dayCounter.textContent = `${totalDayTalks} eventos`;
+      }
+    }
+
+    function renderCurrentView() {
+      if (isItineraryView) {
+        renderItineraryView();
+      } else {
+        renderGridView();
+      }
+    }
+    function renderGridView() {
+      const container = document.getElementById("rooms-grid-container");
+      container.innerHTML = "";
+      const dayTalks = EVENT_DATA[currentDay] || [];
+      const conflicts = getConflictsMap();
+
+      ROOM_METADATA.forEach(room => {
+        // Mobile single-room filter check
+        if (mobileActiveRoomFilter !== "all" && mobileActiveRoomFilter !== room.id) {
+          return;
+        }
+
+        let roomTalks = dayTalks.filter(t => t.salaId === room.id);
+
+        if (currentSearchTerm) {
+          roomTalks = roomTalks.filter(t => 
+            t.tit.toLowerCase().includes(currentSearchTerm) ||
+            t.pal.toLowerCase().includes(currentSearchTerm) ||
+            t.hora.toLowerCase().includes(currentSearchTerm) ||
+            t.salaClassificacao.toLowerCase().includes(currentSearchTerm)
+          );
+        }
+
+        const colDiv = document.createElement("div");
+        colDiv.className = `flex flex-col bg-slate-900/95 border border-slate-800 rounded-2xl overflow-hidden shadow-xl transition-all duration-200`;
+
+        // Column Room Header
+        const headerDiv = document.createElement("div");
+        headerDiv.className = `p-3.5 border-b border-slate-800 bg-gradient-to-b from-[#0e223d] to-slate-900 relative`;
+        headerDiv.innerHTML = `
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded badge-sala-${room.id}">
+              ${room.code} · ${room.title}
+            </span>
+            <span class="text-[11px] font-semibold text-slate-400">
+              ${roomTalks.length} ${roomTalks.length === 1 ? 'palestra' : 'palestras'}
+            </span>
+          </div>
+          <h3 class="text-sm sm:text-base font-bold text-white">${room.title}</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5 leading-snug">${room.desc}</p>
+        `;
+        colDiv.appendChild(headerDiv);
+
+        // Column Cards Container
+        const talksContainer = document.createElement("div");
+        talksContainer.className = "p-2.5 sm:p-3 space-y-3 flex-1 overflow-y-auto max-h-[80vh]";
+
+        if (roomTalks.length === 0) {
+          talksContainer.innerHTML = `
+            <div class="h-36 flex flex-col items-center justify-center text-center p-4 text-slate-500 space-y-1">
+              <i data-lucide="calendar-x" class="w-6 h-6 stroke-[1.5]"></i>
+              <p class="text-xs">Nenhuma palestra encontrada nesta sala.</p>
+            </div>
+          `;
+        } else {
+          roomTalks.forEach(talk => {
+            const isSelected = selectedTalkIds.has(talk.id);
+            const isConflicted = isSelected && conflicts.has(talk.id);
+            const isHighlighted = (highlightedTalkId === talk.id);
+
+            const card = document.createElement("div");
+            card.id = `card-${talk.id}`;
+
+            let cardClasses = `group p-3.5 rounded-xl border transition-all cursor-pointer relative select-none flex flex-col justify-between shadow-sm `;
+            
+            // Visual state styling
+            if (isConflicted) {
+              cardClasses += `bg-rose-950/35 border-rose-500/90 pulse-conflict `;
+            } else if (isSelected) {
+              cardClasses += `bg-[#04284d]/90 border-cyan-400 ring-1 ring-cyan-400/50 shadow-md shadow-cyan-950/50 `;
+            } else if (isHighlighted) {
+              cardClasses += `bg-[#132c4e] border-cyan-300 ring-2 ring-cyan-400/80 shadow-lg text-slate-100 `;
+            } else {
+              cardClasses += `bg-slate-800/70 border-slate-700/70 hover:bg-slate-800 hover:border-slate-500 text-slate-300 `;
+            }
+
+            card.className = cardClasses;
+            // Clicking the card BODY only highlights it (does NOT select)
+            card.onclick = (e) => highlightCard(talk.id, e);
+
+            card.innerHTML = `
+              <div>
+                <!-- Top Row: Room Badge with Full Classification + Dedicated Action Button -->
+                <div class="flex items-start justify-between gap-2 mb-2.5">
+                  <div class="flex flex-col gap-1.5">
+                    <!-- Selo da Sala com Classificação Explícita -->
+                    <span class="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-black uppercase tracking-wide px-2 py-0.5 rounded badge-sala-${talk.salaId} shadow-sm self-start">
+                      <i data-lucide="map-pin" class="w-2.5 h-2.5"></i>
+                      <span>${talk.salaCodigo}: ${talk.salaClassificacao}</span>
+                    </span>
+
+                    <div class="time-text-indicator flex items-center gap-1 text-xs font-bold ${isSelected ? (isConflicted ? 'text-rose-400' : 'text-cyan-300') : 'text-slate-400'}">
+                      <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                      <span>${talk.hora}</span>
+                    </div>
+                  </div>
+
+                  <!-- Botão de Ação Dedicado (+ ou ✓) com área de toque mínima confortável para celular -->
+                  <button 
+                    type="button" 
+                    title="${isSelected ? 'Remover da minha rota' : 'Adicionar à minha rota'}"
+                    onclick="toggleSelectionViaButton('${talk.id}', event)" 
+                    class="w-10 h-10 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-transform active:scale-90 shadow-md shrink-0 ${
+                      isSelected 
+                        ? (isConflicted ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-rose-900/50' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-900/50 ring-2 ring-emerald-300') 
+                        : 'bg-slate-700 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-slate-600'
+                    }">
+                    <i data-lucide="${isSelected ? 'check' : 'plus'}" class="w-5 h-5 sm:w-4 sm:h-4 stroke-[3]"></i>
+                  </button>
+                </div>
+
+                <!-- Título da Palestra COMPLETO SEM CORTES -->
+                <h4 class="text-xs sm:text-[13px] font-bold text-white leading-snug break-words group-hover:text-cyan-200 transition-colors">
+                  ${talk.tit}
+                </h4>
+              </div>
+
+              <!-- Rodapé do Card: Palestrante COMPLETO + Status -->
+              <div class="mt-3 pt-2.5 border-t border-slate-700/50 flex flex-col gap-1.5">
+                <div class="text-[11px] sm:text-xs text-slate-300 flex items-start gap-1.5 leading-snug break-words">
+                  <i data-lucide="user" class="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5"></i>
+                  <span>${talk.pal}</span>
+                </div>
+
+                <div class="card-status-badge-container flex flex-col gap-1">
+                  ${isConflicted ? `
+                    <div class="mt-1 flex items-start gap-1.5 text-[10px] text-rose-200 bg-rose-500/25 border border-rose-500/40 p-1.5 rounded-lg font-bold leading-tight">
+                      <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5"></i>
+                      <span>Choque de horário com outra palestra selecionada!</span>
+                    </div>
+                  ` : ''}
+
+                  ${isSelected && !isConflicted ? `
+                    <div class="mt-0.5 flex items-center gap-1 text-[10px] text-emerald-300 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded font-semibold">
+                      <i data-lucide="check-circle" class="w-3 h-3 text-emerald-400 shrink-0"></i>
+                      <span>Confirmada na sua rota</span>
+                    </div>
+                  ` : ''}
+
+                  ${isHighlighted && !isSelected ? `
+                    <div class="mt-0.5 flex items-center gap-1 text-[10px] text-cyan-300 bg-cyan-950/70 border border-cyan-500/30 px-2 py-0.5 rounded font-medium">
+                      <i data-lucide="eye" class="w-3 h-3 text-cyan-400 shrink-0"></i>
+                      <span>Card destacado (toque no + para marcar)</span>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+            talksContainer.appendChild(card);
+          });
+        }
+
+        colDiv.appendChild(talksContainer);
+        container.appendChild(colDiv);
+      });
+    }
+
+    /* VIEW 2: Render Itinerary / Minha Rota */
+    function renderItineraryView() {
+      const container = document.getElementById("itinerary-list-container");
+      container.innerHTML = "";
+      const selected = getSelectedTalksList();
+      const conflicts = getConflictsMap();
+
+      if (selected.length === 0) {
+        container.innerHTML = `
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 sm:p-12 text-center space-y-4 max-w-xl mx-auto shadow-2xl">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mx-auto">
+              <i data-lucide="calendar-plus" class="w-7 h-7 sm:w-8 sm:h-8"></i>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-white">Sua agenda ainda está vazia</h3>
+            <p class="text-xs sm:text-sm text-slate-400">
+              Você ainda não marcou nenhuma palestra. Volte para a grade do evento e toque no botão <strong>+</strong> das apresentações desejadas.
+            </p>
+            <button onclick="switchViewTo('grid')" class="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm inline-flex items-center gap-2 transition-all shadow-lg shadow-cyan-500/20">
+              <i data-lucide="layout-grid" class="w-4 h-4"></i> Explorar Grade de Salas
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      // Group by Days
+      const days = ["29", "30", "31"];
+      const dayTitles = {
+        "29": "Quinta-Feira · 29 de Outubro",
+        "30": "Sexta-Feira · 30 de Outubro",
+        "31": "Sábado · 31 de Outubro"
+      };
+
+      days.forEach(day => {
+        const daySelected = selected.filter(t => t.dia === day).sort((a, b) => a.start - b.start);
+        if (daySelected.length === 0) return;
+
+        const daySection = document.createElement("div");
+        daySection.className = "bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-3.5 shadow-xl";
+
+        daySection.innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+              <h3 class="text-sm sm:text-lg font-bold text-white">${dayTitles[day]}</h3>
+            </div>
+            <span class="text-[11px] sm:text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 font-semibold border border-slate-700">
+              ${daySelected.length} ${daySelected.length === 1 ? 'evento' : 'eventos'}
+            </span>
+          </div>
+        `;
+
+        const listDiv = document.createElement("div");
+        listDiv.className = "space-y-3 pt-1";
+
+        daySelected.forEach(talk => {
+          const isConflicted = conflicts.has(talk.id);
+          const talkItem = document.createElement("div");
+          talkItem.className = `p-3.5 sm:p-4 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-3.5 transition-all ${
+            isConflicted ? 'bg-rose-950/25 border-rose-500/80 pulse-conflict' : 'bg-slate-800/80 border-slate-700 hover:border-slate-600'
+          }`;
+
+          talkItem.innerHTML = `
+            <div class="space-y-2 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <!-- Selo da Sala com Classificação -->
+                <span class="text-[10px] sm:text-[11px] font-black uppercase tracking-wide px-2 py-0.5 rounded badge-sala-${talk.salaId}">
+                  ${talk.salaCodigo}: ${talk.salaClassificacao}
+                </span>
+
+                <span class="text-xs font-bold text-cyan-300 flex items-center gap-1">
+                  <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                  ${talk.hora}
+                </span>
+
+                ${isConflicted ? `
+                  <span class="text-[10px] font-bold text-rose-300 bg-rose-500/20 border border-rose-500/40 px-2 py-0.5 rounded flex items-center gap-1">
+                    <i data-lucide="alert-octagon" class="w-3.5 h-3.5 text-rose-400"></i>
+                    Choque de horário com outra palestra!
+                  </span>
+                ` : ''}
+              </div>
+
+              <!-- Título sem cortes -->
+              <h4 class="text-sm sm:text-base font-bold text-white leading-snug break-words">
+                ${talk.tit}
+              </h4>
+
+              <!-- Palestrante sem cortes -->
+              <p class="text-xs text-slate-300 flex items-start gap-1.5 leading-snug break-words">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5"></i>
+                <span>${talk.pal}</span>
+              </p>
+            </div>
+
+            <!-- Botão de remover da rota -->
+            <div class="flex items-center gap-2 shrink-0 self-end md:self-center">
+              <button onclick="toggleSelectionViaButton('${talk.id}', event)" class="px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold flex items-center gap-1.5 transition-all">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                Remover da rota
+              </button>
+            </div>
+          `;
+          listDiv.appendChild(talkItem);
+        });
+
+        daySection.appendChild(listDiv);
+        container.appendChild(daySection);
+      });
+    }
+
+    function promptResetAll() {
+      document.getElementById("modal-reset").classList.remove("hidden");
+    }
+
+    function closeResetModal() {
+      document.getElementById("modal-reset").classList.add("hidden");
+    }
+
+    function confirmResetAll() {
+      selectedTalkIds.clear();
+      highlightedTalkId = null;
+      saveToStorage();
+      closeResetModal();
+      renderCurrentView();
+      updateGlobalCounters();
+      lucide.createIcons();
+      showToast("Todas as seleções foram reiniciadas com sucesso!");
+    }
+
+    function scrollToFirstConflict() {
+      const conflicts = getConflictsMap();
+      if (conflicts.size === 0) return;
+      const firstId = conflicts.keys().next().value;
+      const card = document.getElementById(`card-${firstId}`);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        highlightedTalkId = firstId;
+        renderCurrentView();
+        lucide.createIcons();
+      } else {
+        if (!isItineraryView) switchViewTo('itinerary');
+      }
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById("toast-box");
+      const txt = document.getElementById("toast-message");
+      txt.textContent = msg;
+      box.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
+      setTimeout(() => {
+        box.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
+      }, 2500);
+    }
+
+    /* Print Preview & Execution */
+    function openPrintModal() {
+      const selected = getSelectedTalksList();
+      document.getElementById("print-count-talks").textContent = selected.length;
+      const preview = document.getElementById("print-preview-content");
+
+      if (selected.length === 0) {
+        preview.innerHTML = "<p class='text-center text-slate-500 py-6'>Nenhuma palestra selecionada para gerar o roteiro.</p>";
+      } else {
+        let html = `
+          <div style="font-family: sans-serif;">
+            <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
+              <h2 style="font-size: 18px; font-weight: bold; margin: 0;">DAE 2026 — Minha Programação Personalizada</h2>
+              <p style="font-size: 11px; color: #555; margin: 2px 0 0 0;">Florianópolis / SC · Direito Ambiental Experience</p>
+            </div>
+        `;
+
+        const days = ["29", "30", "31"];
+        days.forEach(day => {
+          const dayList = selected.filter(t => t.dia === day).sort((a,b) => a.start - b.start);
+          if (dayList.length === 0) return;
+
+          const dateLabel = day === "29" ? "Quinta-feira, 29 de Outubro" : (day === "30" ? "Sexta-feira, 30 de Outubro" : "Sábado, 31 de Outubro");
+          html += `<h3 style="font-size: 14px; font-weight: bold; margin-top: 14px; background: #eee; padding: 4px 8px; border-radius: 4px;">${dateLabel}</h3>`;
+          html += `<ul style="list-style: none; padding-left: 0; margin: 8px 0;">`;
+          dayList.forEach(t => {
+            html += `
+              <li style="border-bottom: 1px dashed #ccc; padding: 6px 0;">
+                <strong style="color: #0284c7;">[${t.hora}]</strong> <strong>${t.salaCodigo}: ${t.salaClassificacao}</strong><br>
+                <span style="font-weight: 600;">${t.tit}</span><br>
+                <small style="color: #555;">Palestrante: ${t.pal}</small>
+              </li>
+            `;
+          });
+          html += `</ul>`;
+        });
+        html += `</div>`;
+        preview.innerHTML = html;
+      }
+
+      document.getElementById("modal-print").classList.remove("hidden");
+    }
+
+    function closePrintModal() {
+      document.getElementById("modal-print").classList.add("hidden");
+    }
+
+    function executeBrowserPrint() {
+      const printContents = document.getElementById("print-preview-content").innerHTML;
+      const originalContents = document.body.innerHTML;
+      document.body.innerHTML = printContents;
+      window.print();
+      document.body.innerHTML = originalContents;
+      window.location.reload();
+    }
+
+    window.onload = function() {
+      initApp();
+    };
+  </script>
+</body>
+</html>
